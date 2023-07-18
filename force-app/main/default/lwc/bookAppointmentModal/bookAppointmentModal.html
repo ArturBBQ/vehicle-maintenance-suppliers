@@ -1,0 +1,41 @@
+<template>
+
+    <lightning-modal-header label="Book a New maintenance check"></lightning-modal-header>
+
+    <lightning-modal-body>
+
+        <lightning-record-edit-form object-api-name="Case">
+            <lightning-layout multiple-rows>
+                <lightning-layout-item padding="around-small" size="12">
+                    <lightning-input-field field-name="AccountId" value={accountId}></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="12">
+                    <lightning-input-field field-name="Supplier__c" value={supplierId}></lightning-input-field>
+                </lightning-layout-item>
+                <lightning-layout-item padding="around-small" size="12">
+                    <lightning-input label="Appointment date/time" type="datetime" onchange={handleInput}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-record-edit-form>
+
+        <template if:true={showErrorMessage}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <p>Appointment date/time Field cannot be earlier than now</p>
+            </div>
+        </template>
+
+    </lightning-modal-body>
+    
+    <lightning-modal-footer>
+        <lightning-layout>
+            <lightning-layout-item size="6" class="slds-text-align_left">
+                <lightning-button label="Cancel" variant="destructive" onclick={closeModal}></lightning-button>
+            </lightning-layout-item>
+            <lightning-layout-item size="6" class="slds-text-align_right">
+                <lightning-button variant="brand" label="Save" onclick={handleBookAppointment}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-modal-footer>
+    
+</template>

@@ -1,0 +1,41 @@
+<template>
+
+    <lightning-card variant="Narrow" title={accountCity} icon-name="action:map">
+
+        <template lwc:if={visibleRecords}>
+            <div class="slds-var-p-around_small">
+                <lightning-map 
+                    map-markers={visibleRecords}
+                    markers-title='Supplier list'
+                    zoom-level="11"
+                    onmarkerselect={handleMarkerSelect}
+                    selected-marker-value={supplierId}
+                    ></lightning-map>
+            </div>
+        </template>
+
+        <template lwc:if={supplierId}>
+            <div class="book-button">
+                <lightning-button 
+                    variant="brand" 
+                    label="Book a maintenance check"
+                    title="Primary action" 
+                    onclick={handleClick} 
+                    class="slds-m-left_x-small"></lightning-button>
+            </div>
+         </template>
+            <template lwc:else>
+                </template>
+
+    </lightning-card>
+    
+    <template lwc:if={numberOfRecords}>
+        <div class="pagination" slot="footer">
+            <c-pagination records-per-page={recordsPerPage} 
+                          total-records={numberOfRecords} 
+                         onpagination={handlePagination}>
+              </c-pagination>
+        </div>
+    </template>
+        
+</template>

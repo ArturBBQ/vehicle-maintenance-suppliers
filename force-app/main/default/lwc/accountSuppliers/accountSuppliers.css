@@ -1,0 +1,12 @@
+.book-button {
+    display: flex;
+    justify-content: right;
+    margin-right: 155px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
