@@ -14,17 +14,37 @@ export default class Pagination extends LightningElement {
     @api totalRecords;
     pageNo = 1;
     totalPages;
-    pageNumbers = [];
-    
+    pageNumbers = [];    
     
     connectedCallback(){
         this.calculateTotalPages();
+        this.pageNumbersList();
     }      
     
     calculateTotalPages(){
         this.totalPages = Math.ceil(Number(this.totalRecords)/Number(this.recordsPerPage)); 
-        this.pageNumbers = Array(this.totalPages).fill().map((event, i) => i + 1);
     } 
+
+    pageNumbersList(){
+        this.pageNumbers = Array(this.totalPages).fill().map((event, i) => {
+            return {
+                pageNumber: i + 1,
+                isActive: i + 1 === this.pageNo
+            };
+        });
+    }
+
+    preparePaginationList(){
+        this.pageNumbersList();
+        let start = (this.pageNo-1)*this.recordsPerPage;
+        let end = start + this.recordsPerPage;
+
+        this.dispatchEvent(CustomEvent('pagination', {
+            detail:{ 
+                start, end 
+            }
+        }))
+    }
 
     prevHandler(){
         this.pageNo = this.pageNo-1;
@@ -37,26 +57,18 @@ export default class Pagination extends LightningElement {
     }
 
     handlePage(event){
-        this.pageNo = Number(event.target.label);
-        this.preparePaginationList();
-    }
-
-    preparePaginationList(){
-        let start = (this.pageNo-1)*this.recordsPerPage;
-        let end = start + this.recordsPerPage;
-
-        this.dispatchEvent(CustomEvent('pagination', {
-            detail:{ 
-                start, end 
-            }
-        }))
+        const selectedPage = event.target.label;
+        if (selectedPage !== this.pageNo) {
+            this.pageNo = Number(selectedPage);
+            this.preparePaginationList();
+        }
     }
 
     get disablePrev(){ 
         return this.pageNo <= 1;
     }
 
-    get disableNext(){ 
+    get disableNext(){
         return this.pageNo >= this.totalPages;
     }
 
