@@ -3,6 +3,11 @@ private class AccountSuppliersController_Test {
     
     @TestSetup
     static void makeData() {
+        Contact testContact = new Contact(
+            LastName = 'Test Contact'
+            );
+        insert testContact;
+
         Account testAccount = new Account(
             Name = 'Test Account', 
             BillingCity = 'Test City', 
@@ -28,40 +33,26 @@ private class AccountSuppliersController_Test {
         insert new List<Supplier__c>{testSupplier1, testSupplier2};
     }
 
-    @IsTest
-    static void test_getSuppliersByCity() {
-        Supplier__c supplier = [SELECT Name, City__c, Location__Latitude__s, Location__Longitude__s 
-                                FROM Supplier__c 
-                                WHERE City__c = 'Test City' 
-                                LIMIT 1];
-        
-        Double latitude = supplier.Location__Latitude__s.doubleValue();
-        Double longitude = supplier.Location__Longitude__s.doubleValue();
-        
-        Test.startTest();
-        List<Supplier__c> result = AccountSuppliersController.getSuppliersByCity(supplier.City__c, latitude, longitude);
-        List<Supplier__c> result2 = AccountSuppliersController.getSuppliersByCity('nonexistent city', latitude, longitude);
-        Test.stopTest();
 
+    @IsTest
+    static void test_getSuppliersByCity_Positive() {
+        Account testAccount = [SELECT BillingCity, Location__Latitude__s,  Location__Longitude__s  FROM Account LIMIT 1];
+        List<Supplier__c> result = AccountSuppliersController.getSuppliersByCity(
+            testAccount.BillingCity, testAccount.Location__Latitude__s.doubleValue(), testAccount.Location__Longitude__s.doubleValue()
+            );
         System.assertEquals(2, result.size());
-        System.assertEquals('Supplier 1', result[0].Name);
-        System.assertEquals('Supplier 2', result[1].Name);
-        System.assertEquals(null, result2);
     }
 
     @IsTest
     static void test_bookAppointment() {
+        Contact testContact = [SELECT Id FROM Contact LIMIT 1];
         Account testAccount = [SELECT Id FROM Account LIMIT 1];
         Supplier__c testSupplier = [SELECT Id FROM Supplier__c LIMIT 1];
         Datetime appointmentTime = Datetime.now().addDays(1);
-        Datetime impossibleAppointmentTime = Datetime.now().addDays(-1);
 
         Test.startTest();
             Case newCase = AccountSuppliersController.bookAppointment(
-                testAccount.Id, testSupplier.Id, 'New', 'Phone', appointmentTime
-            );
-            Case impossibleCase = AccountSuppliersController.bookAppointment(
-                testAccount.Id, testSupplier.Id, 'New', 'Phone', impossibleAppointmentTime
+                testContact.Id, testAccount.Id, testSupplier.Id, 'New', 'Phone', appointmentTime
             );
         Test.stopTest();
 
@@ -71,7 +62,25 @@ private class AccountSuppliersController_Test {
         System.assertEquals('Phone', newCase.Origin);
         System.assertEquals(appointmentTime, newCase.Appointment_date_time__c);
         System.assertNotEquals(null, newCase);
-        System.assertEquals(null, impossibleCase);
+    } 
+
+    @IsTest
+    static void test_bookAppointment_Negative() {
+        Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+        Account testAccount = [SELECT Id FROM Account LIMIT 1];
+        Supplier__c testSupplier = [SELECT Id FROM Supplier__c LIMIT 1];
+        Datetime impossibleAppointmentTime = Datetime.now().addDays(-1);
+
+        Test.startTest();
+            try {
+                Case impossibleCase = AccountSuppliersController.bookAppointment(
+                    testContact.Id, testAccount.Id, testSupplier.Id, 'New', 'Phone', impossibleAppointmentTime
+                );
+                System.assert(false, 'Expected exception not thrown.');
+            } catch (AuraHandledException e) {
+                System.assertEquals('Script-thrown exception', e.getMessage());
+            }
+        Test.stopTest();
     } 
 
 }

@@ -1,6 +1,14 @@
 import { LightningElement, api } from 'lwc';
 
+import Next from '@salesforce/label/c.Next';
+import Prev from '@salesforce/label/c.Prev';
+
 export default class Pagination extends LightningElement {
+
+    label = {
+        Next,
+        Prev
+    };
 
     @api recordsPerPage;
     @api totalRecords;

@@ -3,6 +3,8 @@ import { getRecord} from 'lightning/uiRecordApi';
 import getSuppliersByCity from '@salesforce/apex/AccountSuppliersController.getSuppliersByCity';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
+import bookButton from '@salesforce/label/c.bookButton';
+
 const FIELDS = [
     'Account.BillingCity', 
     'Account.BillingStreet',
@@ -13,6 +15,10 @@ const FIELDS = [
 import bookAppointmentModal from "c/bookAppointmentModal";
 
 export default class AccountSuppliers extends LightningElement {
+
+    label = {
+        bookButton
+    }; 
 
     @api recordId;
     accountCity;
@@ -88,10 +94,12 @@ export default class AccountSuppliers extends LightningElement {
             accountId: this.recordId
         })
         .then((result) => {
+            const titleSuccess = 'Success';
+            const messageSuccess = 'Appointment booked successfully';
+            const variantSuccess = 'success';
             if (result) {
-                this.showMessage('Success', 'Appointment booked successfully', 'success');
+                this.showMessage(titleSuccess, messageSuccess, variantSuccess);
             }
-                
         });
     }
 

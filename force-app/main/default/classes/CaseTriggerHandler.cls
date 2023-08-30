@@ -1,32 +1,26 @@
-public with sharing class CaseTriggerHandler {
+public without sharing class CaseTriggerHandler implements ITriggerHandler {
     
-    public static void countAverageAccountRating(List<Case> triggerNew) {
-        
-        Set<Id> accountIds = new Set<Id>();
-
-        for(Case curCase : triggerNew){
-            if (curCase.Status == 'Closed' && curCase.Rating__c == null) {
-                curCase.addError('Fill up Rating field (from 1 to 5) before closing case.');
-            } else {
-                accountIds.add(curCase.AccountId);
-            }
-        }
-
-        Map<Id, Account> accountMap = new Map<Id, Account>([SELECT Id, Name, Average_rating__c, (SELECT Id, Rating__c FROM Cases WHERE Status = 'Closed') 
-                                                            FROM Account 
-                                                            WHERE Id IN :accountIds]);                            
-
-        List<AggregateResult> groupedRes = [SELECT AccountId, COUNT(Id)cnt, AVG(Rating__c)avRating 
-                                            FROM Case 
-                                            WHERE AccountId IN: accountIds AND Status = 'Closed' 
-                                            GROUP BY AccountId];
-        
-        for(AggregateResult ar : groupedRes){
-            Id recordId = (Id)ar.get('AccountId'); 
-            accountMap.get(recordId).Average_rating__c = (Decimal)ar.get('avRating');   
-        }
-        
-        update accountMap.values(); 
+    private Boolean triggerIsExecuting;
+    private Integer triggerSize;
+    public CaseTriggerHelper helper;
+    public CaseTriggerHandler(Boolean triggerIsExecuting, Integer triggerSize) {
+        this.triggerIsExecuting = triggerIsExecuting;
+        this.triggerSize = triggerSize;
+        this.helper = new CaseTriggerHelper();
     }
+
+    /* ========== TRIGGER METHODS ========== */ 
+
+    public void beforeInsert(List<Case> newItems) {}
+    public void beforeUpdate(List<Case> oldItems, List<Case> newItems, Map<ID, SObject> oldItemsMap, Map<ID, SObject> newItemsMap) {}
+    public void beforeDelete(List<Case> oldItems, Map<ID, SObject> oldItemsMap) {}
+    public void afterInsert(List<Case> newItems, Map<ID, SObject> newItemsMap) {}
+
+    public void afterUpdate(List<Case> oldItems, List<Case> newItems, Map<ID, SObject> oldItemsMap, Map<ID, SObject> newItemsMap) {
+        helper.countAverageAccountRating(newItems);
+    }
+
+    public void afterDelete(List<Case> oldItems, Map<ID, SObject> oldItemsMap) {}
+    public void afterUndelete(List<Case> newItems, Map<ID, SObject> newItemsMap) {}
 
 }

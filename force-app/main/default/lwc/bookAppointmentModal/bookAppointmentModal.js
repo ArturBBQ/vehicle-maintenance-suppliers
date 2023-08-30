@@ -6,36 +6,39 @@ export default class BookAppointmentModal extends LightningModal {
 
     @api accountId;
     @api supplierId;
-    appointmentTime;
+    newCaseInput ={};
     status = 'New';
     caseOrigin = 'Phone';
     showErrorMessage = false;
+    errorMessage;
 
     closeModal() {
         this.close();
     }
 
     handleInput(event) {
-        this.appointmentTime = event.target.value;
+        this.newCaseInput[event.target.name] = event.target.value;
     }
 
     handleBookAppointment(){
         bookAppointment({
+            contactId: this.newCaseInput.contactId,
             accountId: this.accountId,
             supplierId: this.supplierId,
             status: this.status,
             caseOrigin: this.caseOrigin,
-            appointmentTime: this.appointmentTime
+            appointmentTime: this.newCaseInput.datetime
         }) .then((result) => {
             if(result != null){
                 this.close( { result: result } );
-            } else {
-                this.showErrorMessage = true;
-            }
-           
+            }           
         })
         .catch((error) => {
             console.error(error);
+            if (error.body.message) {
+                this.showErrorMessage = true;
+                this.errorMessage = error.body.message;                
+            }
         })
     }
 

@@ -9,8 +9,8 @@
                     markers-title='Supplier list'
                     zoom-level="11"
                     onmarkerselect={handleMarkerSelect}
-                    selected-marker-value={supplierId}
-                    ></lightning-map>
+                    selected-marker-value={supplierId}>
+                </lightning-map>
             </div>
         </template>
 
@@ -18,10 +18,11 @@
             <div class="book-button">
                 <lightning-button 
                     variant="brand" 
-                    label="Book a maintenance check"
+                    label={label.bookButton}
                     title="Primary action" 
                     onclick={handleClick} 
-                    class="slds-m-left_x-small"></lightning-button>
+                    class="slds-m-left_x-small">
+                </lightning-button>
             </div>
          </template>
             <template lwc:else>
@@ -33,7 +34,7 @@
         <div class="pagination" slot="footer">
             <c-pagination records-per-page={recordsPerPage} 
                           total-records={numberOfRecords} 
-                         onpagination={handlePagination}>
+                          onpagination={handlePagination}>
               </c-pagination>
         </div>
     </template>
